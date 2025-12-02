@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Flashcards</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<!-- Link PWA manifest -->
+<link rel="manifest" href="manifest.json">
+
+<style>
+    body {
+        font-family: sans-serif;
+        max-width: 600px;
+        margin: auto;
+        padding: 20px;
+        text-align: center;
+    }
+    .card {
+        border: 1px solid #ccc;
+        padding: 2rem;
+        margin: 1rem 0;
+        font-size: 1.4rem;
+        cursor: pointer;
+        user-select: none;
+    }
+    .rating button {
+        padding: 0.6rem 1rem;
+        margin: 0.3rem;
+        font-size: 1rem;
+    }
+</style>
+</head>
+
+<body>
+
+<h1>Flashcards</h1>
+
+<button onclick="addCard()">Add Card</button>
+
+<div id="cardContainer"></div>
+
+<script>
+// -----------------------------
+//    LOCAL STORAGE DATABASE
+// -----------------------------
+
+function loadCards() {
+    return JSON.parse(localStorage.getItem("cards") || "[]");
+}
+
+function saveCards(cards) {
+    localStorage.setItem("cards", JSON.stringify(cards));
+}
+
+// -----------------------------
+//    WEIGHTED ALGORITHM
+// -----------------------------
+
+const weights = { 1: 25, 2: 16, 3: 9, 4: 2, 5: 1 };
+
+function weightedPick(cards) {
+    let total = cards.reduce((s, c) => s + weights[c.score], 0);
+    let r = Math.random() * total;
+
+    for (let c of cards) {
+        r -= weights[c.score];
+        if (r <= 0) return c;
+    }
+    return cards[cards.length - 1];
+}
+
+// -----------------------------
+//    APP LOGIC
+// -----------------------------
+
+let cards = loadCards();
+let current = cards.length > 0 ? weightedPick(cards) : null;
+
+function addCard() {
+    const front = prompt("Front text:");
+    if (!front) return;
+
+    const back = prompt("Back text:");
+    if (!back) return;
+
+    cards.push({ id: Date.now(), front, back, score: 3 });
+    saveCards(cards);
+    current = weightedPick(cards);
+    render();
+}
+
+function rate(score) {
+    current.score = score;
+    saveCards(cards);
+    current = weightedPick(cards);
+    render();
+}
+
+function render() {
+    const container = document.getElementById("cardContainer");
+
+    if (!current) {
+        container.innerHTML = "<p>No cards yet. Add one!</p>";
+        return;
+    }
+
+    container.innerHTML = `
+        <div class="card" onclick="flipCard()">
+            <div id="cardText">${current.front}</div>
+        </div>
+        <div class="rating">
+            <button onclick="rate(1)">1</button>
+            <button onclick="rate(2)">2</button>
+            <button onclick="rate(3)">3</button>
+            <button onclick="rate(4)">4</button>
+            <button onclick="rate(5)">5</button>
+        </div>
+    `;
+}
+
+let flipped = false;
+function flipCard() {
+    flipped = !flipped;
+    document.getElementById("cardText").innerText = 
+        flipped ? current.back : current.front;
+}
+
+// -----------------------------
+//    INITIAL RENDER
+// -----------------------------
+
+render();
+
+// -----------------------------
+//    SERVICE WORKER (PWA)
+// -----------------------------
+
+if ("serviceWorker" in navigator) {
+    navigator.serviceWorker.register("sw.js");
+}
+</script>
+
+</body>
+</html>
