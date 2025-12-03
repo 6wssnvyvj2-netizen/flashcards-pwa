@@ -1,0 +1,17 @@
+[
+  {
+    "id": 1,
+    "front": "What is the capital of France?",
+    "back": "Paris"
+  },
+  {
+    "id": 2,
+    "front": "What is the shape of the trichloromethane (HCCI3) molecule?",
+    "back": "Tetrahedron"
+  },
+  {
+    "id": 3,
+    "front": "Explain Photosynthesis (Image Example)",
+    "back": "Plants use sunlight to synthesize foods.<br><br><i>(You can put &lt;img src='image.jpg'&gt; tags here)</i>"
+  }
+]
