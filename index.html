@@ -2,20 +2,19 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Brainscape Clone</title>
+<title>Chess Openings Trainer</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-
-<!-- Link PWA manifest -->
 <link rel="manifest" href="manifest.json">
+
+<!-- Chessboard.js CSS -->
+<link rel="stylesheet" href="https://unpkg.com/@chrisoakman/chessboardjs@1.0.0/dist/chessboard-1.0.0.min.css" xintegrity="sha384-q94+BZtLrkL1/ohfjR8c6L+A6qzNH9R2hBLwyoAfu3i/WCvQjzL2RQJ3uNHDISdU" crossorigin="anonymous">
 
 <style>
     :root {
-        --bg-color: #2c3e50; /* Navy Blue */
+        --bg-color: #2c3e50; 
         --card-bg: #ffffff;
         --text-color: #333;
-        
-        /* Brainscape-ish Colors */
-        --c-0: #bdc3c7; /* Grey (Unrated) */
+        --c-0: #bdc3c7; /* Grey */
         --c-1: #8e44ad; /* Purple */
         --c-2: #e67e22; /* Orange */
         --c-3: #f1c40f; /* Yellow */
@@ -32,93 +31,84 @@
         display: flex;
         flex-direction: column;
         align-items: center;
-        justify-content: center;
         color: var(--text-color);
+        overflow: hidden; 
     }
 
-    /* Layout Container */
     .app-container {
         width: 100%;
-        max-width: 500px;
-        padding: 20px;
+        max-width: 450px; /* Tighter width for chess board */
+        padding: 15px;
         box-sizing: border-box;
         display: flex;
         flex-direction: column;
         height: 100%;
     }
 
-    /* The Flashcard */
     .card-wrapper {
         flex: 1;
         display: flex;
         flex-direction: column;
-        justify-content: center;
-        perspective: 1000px;
+        position: relative;
     }
 
     .card {
         background: var(--card-bg);
-        border-radius: 15px;
-        box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+        border-radius: 12px;
+        box-shadow: 0 8px 20px rgba(0,0,0,0.3);
         overflow: hidden;
-        min-height: 300px;
+        flex: 1;
         display: flex;
         flex-direction: column;
         cursor: pointer;
-        transition: transform 0.2s;
         position: relative;
+        max-height: 75vh;
     }
 
-    .card:active {
-        transform: scale(0.98);
-    }
-
-    /* Colored Header Bar */
     .card-header {
-        height: 12px;
-        background-color: var(--c-0); /* Default Grey */
+        height: 10px;
+        background-color: var(--c-0);
         width: 100%;
-        transition: background-color 0.3s ease;
     }
 
-    /* Card Content Area */
     .card-content {
         flex: 1;
-        padding: 2rem;
+        padding: 1.5rem;
         display: flex;
+        flex-direction: column;
         align-items: center;
         justify-content: center;
         text-align: center;
-        font-size: 1.5rem;
-        font-weight: 500;
-        line-height: 1.4;
-    }
-    
-    /* Support for images in cards */
-    .card-content img {
-        max-width: 100%;
-        max-height: 200px;
-        border-radius: 8px;
-        margin-top: 10px;
+        overflow-y: auto;
     }
 
-    .label {
-        position: absolute;
-        top: 25px;
-        left: 20px;
-        font-size: 0.9rem;
-        color: #aaa;
-        font-weight: bold;
-        text-transform: uppercase;
+    .q-text {
+        font-size: 1.8rem;
+        font-weight: 600;
+        margin-bottom: 1rem;
+        color: #2c3e50;
     }
 
-    /* Rating Buttons Area */
+    .a-text {
+        font-size: 1.2rem;
+        color: #7f8c8d;
+    }
+
+    /* Chess Board Styling */
+    #myBoard {
+        width: 100%;
+        max-width: 320px;
+        margin: 10px auto;
+        pointer-events: none; /* Prevent user dragging pieces */
+    }
+
+    /* Controls at bottom */
     .controls {
-        height: 100px; /* Fixed height to prevent jumping */
+        height: 80px;
         display: flex;
         align-items: center;
         justify-content: center;
-        margin-top: 20px;
+        margin-top: 15px;
         opacity: 0;
         pointer-events: none;
         transition: opacity 0.2s;
@@ -130,65 +120,61 @@
     }
 
     .rating-btn {
-        width: 50px;
-        height: 50px;
+        width: 45px;
+        height: 45px;
         border-radius: 50%;
         border: none;
-        margin: 0 8px;
+        margin: 0 6px;
         color: white;
         font-weight: bold;
-        font-size: 1.1rem;
+        font-size: 1rem;
         cursor: pointer;
-        box-shadow: 0 4px 6px rgba(0,0,0,0.2);
-        transition: transform 0.1s;
+        box-shadow: 0 3px 5px rgba(0,0,0,0.2);
     }
-
-    .rating-btn:active {
-        transform: translateY(2px);
-    }
-
-    /* Button specific colors */
+    
+    .rating-btn:active { transform: scale(0.95); }
     .btn-1 { background-color: var(--c-1); }
     .btn-2 { background-color: var(--c-2); }
     .btn-3 { background-color: var(--c-3); }
     .btn-4 { background-color: var(--c-4); }
     .btn-5 { background-color: var(--c-5); }
 
-    /* Helper text */
-    .hint-text {
+    .deck-badge {
+        position: absolute;
+        top: 20px;
+        right: 20px;
+        background: #ecf0f1;
+        padding: 4px 8px;
+        border-radius: 4px;
+        font-size: 0.7rem;
         color: #7f8c8d;
-        margin-top: 10px;
-        font-size: 0.9rem;
-        text-align: center;
-    }
-
-    /* Loading state */
-    #loading {
-        color: white;
-        font-size: 1.2rem;
+        text-transform: uppercase;
+        font-weight: bold;
     }
 </style>
 </head>
 <body>
 
 <div class="app-container">
-    
-    <!-- Loading Message -->
-    <div id="loading">Loading cards...</div>
+    <div id="loading" style="color:white; text-align:center; margin-top:50px;">Loading Chess Engine...</div>
 
-    <!-- The Card -->
     <div id="gameArea" style="display:none;" class="card-wrapper">
-        <div class="card" onclick="flipCard()">
+        <div class="card" onclick="revealAnswer()">
             <div class="card-header" id="cardHeader"></div>
-            <div class="label" id="cardLabel">Q</div>
-            <div class="card-content" id="cardText">
-                <!-- Text goes here -->
+            <div class="deck-badge" id="deckBadge">OPENING</div>
+            
+            <div class="card-content">
+                <!-- Board Area -->
+                <div id="myBoard"></div>
+                
+                <!-- Text Area -->
+                <div id="textContainer" style="margin-top: 20px;">
+                    <div id="mainText" class="q-text">Loading...</div>
+                    <div id="subText" class="a-text"></div>
+                </div>
             </div>
         </div>
-        
-        <div class="hint-text" id="hintText">Tap card to flip</div>
 
-        <!-- Rating Buttons -->
         <div class="controls" id="controls">
             <button class="rating-btn btn-1" onclick="rate(1)">1</button>
             <button class="rating-btn btn-2" onclick="rate(2)">2</button>
@@ -199,36 +185,56 @@
     </div>
 </div>
 
+<!-- Scripts -->
+<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+<script src="https://unpkg.com/@chrisoakman/chessboardjs@1.0.0/dist/chessboard-1.0.0.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.3/chess.min.js"></script>
+
 <script>
 // -----------------------------
-//    STATE & DATA
+//    STATE
 // -----------------------------
-let cardsData = []; // Loaded from JSON
-let scores = {};    // Loaded from LocalStorage
+let cardsData = [];
+let scores = {};
 let currentCard = null;
-let isFlipped = false;
+let isAnswerRevealed = false;
+let board = null;
+let game = new Chess();
+let moveInterval = null;
 
 // -----------------------------
 //    INIT
 // -----------------------------
 window.onload = async () => {
-    // 1. Load scores from memory
+    // Load Scores
     const savedScores = localStorage.getItem("flashcard_scores");
-    if (savedScores) {
-        scores = JSON.parse(savedScores);
-    }
+    if (savedScores) scores = JSON.parse(savedScores);
 
-    // 2. Fetch cards from JSON file
+    // Load Data
     try {
         const response = await fetch('cards.json');
         cardsData = await response.json();
         
+        // Init Board UI
+        // We initialize it once, but we'll set position later
+        board = Chessboard('myBoard', {
+            position: 'start',
+            showNotation: true,
+            draggable: false
+        });
+
         document.getElementById('loading').style.display = 'none';
         document.getElementById('gameArea').style.display = 'flex';
         
         pickNextCard();
+        
+        // Handle window resize for responsiveness
+        window.addEventListener('resize', () => {
+            board.resize();
+        });
+
     } catch (err) {
-        document.getElementById('loading').innerText = "Error loading cards.json";
+        document.getElementById('loading').innerText = "Error loading data. Ensure cards.json exists.";
         console.error(err);
     }
 };
@@ -236,94 +242,125 @@ window.onload = async () => {
 // -----------------------------
 //    ALGORITHM (Weighted)
 // -----------------------------
-// Lower score = Higher probability of appearing
 const weights = { 0: 30, 1: 25, 2: 16, 3: 9, 4: 2, 5: 1 };
 
 function pickNextCard() {
     if (cardsData.length === 0) return;
 
-    // Calculate total weight based on current scores
+    // Weight logic
     let totalWeight = 0;
-    const weightedCards = cardsData.map(card => {
-        const score = scores[card.id] || 0; // Default to 0 if no score
-        const weight = weights[score] || 30;
-        totalWeight += weight;
-        return { ...card, weight, currentScore: score };
+    const weightedCards = cardsData.map(c => {
+        const s = scores[c.id] || 0; 
+        const w = weights[s] || 30;
+        totalWeight += w;
+        return { ...c, weight: w, currentScore: s };
     });
 
-    let random = Math.random() * totalWeight;
+    let r = Math.random() * totalWeight;
+    currentCard = weightedCards[0];
     
-    for (let card of weightedCards) {
-        random -= card.weight;
-        if (random <= 0) {
-            currentCard = card;
+    for (let c of weightedCards) {
+        r -= c.weight;
+        if (r <= 0) {
+            currentCard = c;
             break;
         }
     }
-    
-    // Fallback
-    if (!currentCard) currentCard = weightedCards[0];
 
-    // Reset UI for new card
-    isFlipped = false;
-    renderCard();
+    renderCardFront();
 }
 
 // -----------------------------
-//    UI LOGIC
+//    RENDER LOGIC
 // -----------------------------
-function renderCard() {
-    const cardText = document.getElementById('cardText');
-    const cardHeader = document.getElementById('cardHeader');
-    const cardLabel = document.getElementById('cardLabel');
-    const controls = document.getElementById('controls');
-    const hintText = document.getElementById('hintText');
 
-    // Content
-    cardText.innerHTML = currentCard.front;
-    cardLabel.innerText = "Q";
+function renderCardFront() {
+    isAnswerRevealed = false;
     
-    // Header Color based on previous score
-    // 0=Grey, 1=Purple, 2=Orange, 3=Yellow, 4=Green, 5=Blue
-    const s = currentCard.currentScore;
-    cardHeader.style.backgroundColor = `var(--c-${s})`;
+    // UI Reset
+    document.getElementById('controls').classList.remove('visible');
+    document.getElementById('cardHeader').style.backgroundColor = `var(--c-${currentCard.currentScore})`;
+    document.getElementById('deckBadge').innerText = currentCard.tag || "CHESS";
 
-    // Hide controls
-    controls.classList.remove('visible');
-    hintText.style.opacity = 1;
+    // Mode: "Guess the Opening"
+    // We show the moves being played on the board, user guesses name
+    
+    // 1. Text Setup
+    document.getElementById('mainText').innerText = "Guess the Opening";
+    document.getElementById('mainText').style.fontSize = "1.2rem";
+    document.getElementById('mainText').style.color = "#7f8c8d";
+    document.getElementById('subText').innerText = "(Watch the board)";
+    
+    // 2. Board Setup & Animation
+    playOpening(currentCard.pgn);
 }
 
-function flipCard() {
-    if (isFlipped) return; // Prevent flipping back immediately if desired, or toggle
-    
-    isFlipped = true;
-    
-    const cardText = document.getElementById('cardText');
-    const cardLabel = document.getElementById('cardLabel');
-    const controls = document.getElementById('controls');
-    const hintText = document.getElementById('hintText');
+function revealAnswer() {
+    if (isAnswerRevealed) return;
+    isAnswerRevealed = true;
 
-    // Show Answer
-    cardText.innerHTML = currentCard.back;
-    cardLabel.innerText = "A";
+    // Show Name
+    document.getElementById('mainText').innerText = currentCard.front; // e.g. "Sicilian Defense"
+    document.getElementById('mainText').style.fontSize = "1.8rem";
+    document.getElementById('mainText').style.color = "#2c3e50";
+    
+    // Show PGN text
+    document.getElementById('subText').innerText = currentCard.back; // e.g. "1. e4 c5"
 
     // Show Buttons
-    controls.classList.add('visible');
-    hintText.style.opacity = 0;
+    document.getElementById('controls').classList.add('visible');
+}
+
+// -----------------------------
+//    CHESS LOGIC
+// -----------------------------
+function playOpening(pgn) {
+    // Stop any existing loop
+    if (moveInterval) clearInterval(moveInterval);
+    
+    game.reset();
+    board.position('start');
+
+    // Parse PGN to get clean move list
+    // We load PGN into game to validate it, then get history
+    const loadSuccess = game.load_pgn(pgn);
+    if(!loadSuccess) {
+        console.error("Invalid PGN", pgn);
+        return;
+    }
+    
+    const moves = game.history(); // Array of SAN moves like ['e4', 'c5']
+    game.reset(); // Reset to start so we can play them one by one
+    
+    let moveIndex = 0;
+    
+    // Initial delay before moving
+    setTimeout(() => {
+        moveInterval = setInterval(() => {
+            if (moveIndex >= moves.length) {
+                // End of opening reached, pause then restart
+                clearInterval(moveInterval);
+                setTimeout(() => {
+                    if (currentCard.pgn === pgn && !isAnswerRevealed) playOpening(pgn); // Loop if still on same card
+                }, 2000);
+                return;
+            }
+
+            game.move(moves[moveIndex]);
+            board.position(game.fen());
+            moveIndex++;
+            
+        }, 800); // Speed of moves (ms)
+    }, 500);
 }
 
 function rate(score) {
-    // Save score
     scores[currentCard.id] = score;
     localStorage.setItem("flashcard_scores", JSON.stringify(scores));
-
-    // Next card
     pickNextCard();
 }
 
-// -----------------------------
-//    SERVICE WORKER REG
-// -----------------------------
+// Service Worker
 if ("serviceWorker" in navigator) {
     navigator.serviceWorker.register("sw.js");
 }
