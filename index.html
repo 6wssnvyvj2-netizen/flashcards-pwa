@@ -37,7 +37,7 @@
 
     .app-container {
         width: 100%;
-        max-width: 450px; /* Tighter width for chess board */
+        max-width: 450px; 
         padding: 15px;
         box-sizing: border-box;
         display: flex;
@@ -62,7 +62,7 @@
         flex-direction: column;
         cursor: pointer;
         position: relative;
-        max-height: 75vh;
+        max-height: 80vh; /* Prevent it from being too tall */
     }
 
     .card-header {
@@ -73,33 +73,34 @@
 
     .card-content {
         flex: 1;
-        padding: 1.5rem;
+        padding: 1rem;
         display: flex;
         flex-direction: column;
         align-items: center;
-        justify-content: center;
+        justify-content: flex-start; /* Align to top so board has room */
         text-align: center;
         overflow-y: auto;
     }
 
     .q-text {
-        font-size: 1.8rem;
+        font-size: 1.5rem;
         font-weight: 600;
-        margin-bottom: 1rem;
+        margin: 0.5rem 0;
         color: #2c3e50;
     }
 
     .a-text {
-        font-size: 1.2rem;
+        font-size: 1.1rem;
         color: #7f8c8d;
+        min-height: 1.5rem;
     }
 
     /* Chess Board Styling */
     #myBoard {
         width: 100%;
-        max-width: 320px;
+        max-width: 340px; /* Slightly larger */
         margin: 10px auto;
-        pointer-events: none; /* Prevent user dragging pieces */
+        pointer-events: none; /* Prevent dragging */
     }
 
     /* Controls at bottom */
@@ -108,7 +109,7 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        margin-top: 15px;
+        margin-top: 10px;
         opacity: 0;
         pointer-events: none;
         transition: opacity 0.2s;
@@ -151,6 +152,20 @@
         text-transform: uppercase;
         font-weight: bold;
     }
+
+    .flip-btn {
+        position: absolute;
+        top: 20px;
+        left: 20px;
+        background: none;
+        border: 1px solid #ccc;
+        padding: 4px 8px;
+        border-radius: 4px;
+        font-size: 0.7rem;
+        color: #7f8c8d;
+        cursor: pointer;
+        z-index: 10;
+    }
 </style>
 </head>
 <body>
@@ -161,17 +176,19 @@
     <div id="gameArea" style="display:none;" class="card-wrapper">
         <div class="card" onclick="revealAnswer()">
             <div class="card-header" id="cardHeader"></div>
+            
+            <button class="flip-btn" onclick="toggleOrientation(event)">FLIP BOARD</button>
             <div class="deck-badge" id="deckBadge">OPENING</div>
             
             <div class="card-content">
-                <!-- Board Area -->
-                <div id="myBoard"></div>
-                
-                <!-- Text Area -->
-                <div id="textContainer" style="margin-top: 20px;">
+                <!-- Text Area Top -->
+                <div id="textContainer">
                     <div id="mainText" class="q-text">Loading...</div>
                     <div id="subText" class="a-text"></div>
                 </div>
+
+                <!-- Board Area -->
+                <div id="myBoard"></div>
             </div>
         </div>
 
@@ -201,37 +218,36 @@ let isAnswerRevealed = false;
 let board = null;
 let game = new Chess();
 let moveInterval = null;
+let userOrientation = 'white';
 
 // -----------------------------
 //    INIT
 // -----------------------------
 window.onload = async () => {
-    // Load Scores
     const savedScores = localStorage.getItem("flashcard_scores");
     if (savedScores) scores = JSON.parse(savedScores);
 
-    // Load Data
     try {
         const response = await fetch('cards.json');
         cardsData = await response.json();
         
-        // Init Board UI
-        // We initialize it once, but we'll set position later
+        // --- CRITICAL FIX: pieceTheme points to web images ---
         board = Chessboard('myBoard', {
             position: 'start',
             showNotation: true,
-            draggable: false
+            draggable: false,
+            pieceTheme: 'https://chessboardjs.com/img/chesspieces/wikipedia/{piece}.png'
         });
 
         document.getElementById('loading').style.display = 'none';
         document.getElementById('gameArea').style.display = 'flex';
         
+        // --- CRITICAL FIX: Resize board after making it visible ---
+        setTimeout(() => { board.resize(); }, 100);
+
         pickNextCard();
         
-        // Handle window resize for responsiveness
-        window.addEventListener('resize', () => {
-            board.resize();
-        });
+        window.addEventListener('resize', () => { board.resize(); });
 
     } catch (err) {
         document.getElementById('loading').innerText = "Error loading data. Ensure cards.json exists.";
@@ -240,14 +256,13 @@ window.onload = async () => {
 };
 
 // -----------------------------
-//    ALGORITHM (Weighted)
+//    ALGORITHM
 // -----------------------------
 const weights = { 0: 30, 1: 25, 2: 16, 3: 9, 4: 2, 5: 1 };
 
 function pickNextCard() {
     if (cardsData.length === 0) return;
 
-    // Weight logic
     let totalWeight = 0;
     const weightedCards = cardsData.map(c => {
         const s = scores[c.id] || 0; 
@@ -277,21 +292,18 @@ function pickNextCard() {
 function renderCardFront() {
     isAnswerRevealed = false;
     
-    // UI Reset
     document.getElementById('controls').classList.remove('visible');
     document.getElementById('cardHeader').style.backgroundColor = `var(--c-${currentCard.currentScore})`;
     document.getElementById('deckBadge').innerText = currentCard.tag || "CHESS";
 
-    // Mode: "Guess the Opening"
-    // We show the moves being played on the board, user guesses name
-    
-    // 1. Text Setup
+    // Text Setup
     document.getElementById('mainText').innerText = "Guess the Opening";
-    document.getElementById('mainText').style.fontSize = "1.2rem";
+    document.getElementById('mainText').style.fontSize = "1.5rem";
     document.getElementById('mainText').style.color = "#7f8c8d";
     document.getElementById('subText').innerText = "(Watch the board)";
     
-    // 2. Board Setup & Animation
+    // Board Setup
+    board.orientation(userOrientation);
     playOpening(currentCard.pgn);
 }
 
@@ -300,12 +312,12 @@ function revealAnswer() {
     isAnswerRevealed = true;
 
     // Show Name
-    document.getElementById('mainText').innerText = currentCard.front; // e.g. "Sicilian Defense"
-    document.getElementById('mainText').style.fontSize = "1.8rem";
+    document.getElementById('mainText').innerText = currentCard.front; 
+    document.getElementById('mainText').style.fontSize = "2rem";
     document.getElementById('mainText').style.color = "#2c3e50";
     
-    // Show PGN text
-    document.getElementById('subText').innerText = currentCard.back; // e.g. "1. e4 c5"
+    // Show PGN
+    document.getElementById('subText').innerText = currentCard.back; 
 
     // Show Buttons
     document.getElementById('controls').classList.add('visible');
@@ -315,33 +327,26 @@ function revealAnswer() {
 //    CHESS LOGIC
 // -----------------------------
 function playOpening(pgn) {
-    // Stop any existing loop
     if (moveInterval) clearInterval(moveInterval);
     
     game.reset();
     board.position('start');
 
-    // Parse PGN to get clean move list
-    // We load PGN into game to validate it, then get history
     const loadSuccess = game.load_pgn(pgn);
-    if(!loadSuccess) {
-        console.error("Invalid PGN", pgn);
-        return;
-    }
+    if(!loadSuccess) return;
     
-    const moves = game.history(); // Array of SAN moves like ['e4', 'c5']
-    game.reset(); // Reset to start so we can play them one by one
+    const moves = game.history(); 
+    game.reset(); 
     
     let moveIndex = 0;
     
-    // Initial delay before moving
     setTimeout(() => {
         moveInterval = setInterval(() => {
             if (moveIndex >= moves.length) {
-                // End of opening reached, pause then restart
                 clearInterval(moveInterval);
                 setTimeout(() => {
-                    if (currentCard.pgn === pgn && !isAnswerRevealed) playOpening(pgn); // Loop if still on same card
+                    // Replay if same card
+                    if (currentCard.pgn === pgn && !isAnswerRevealed) playOpening(pgn); 
                 }, 2000);
                 return;
             }
@@ -350,8 +355,14 @@ function playOpening(pgn) {
             board.position(game.fen());
             moveIndex++;
             
-        }, 800); // Speed of moves (ms)
+        }, 800); 
     }, 500);
+}
+
+function toggleOrientation(e) {
+    e.stopPropagation(); // Stop card flip
+    userOrientation = userOrientation === 'white' ? 'black' : 'white';
+    board.orientation(userOrientation);
 }
 
 function rate(score) {
@@ -360,7 +371,6 @@ function rate(score) {
     pickNextCard();
 }
 
-// Service Worker
 if ("serviceWorker" in navigator) {
     navigator.serviceWorker.register("sw.js");
 }
