@@ -2,140 +2,328 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Flashcards</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Brainscape Clone</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 
 <!-- Link PWA manifest -->
 <link rel="manifest" href="manifest.json">
 
 <style>
+    :root {
+        --bg-color: #2c3e50; /* Navy Blue */
+        --card-bg: #ffffff;
+        --text-color: #333;
+        
+        /* Brainscape-ish Colors */
+        --c-0: #bdc3c7; /* Grey (Unrated) */
+        --c-1: #8e44ad; /* Purple */
+        --c-2: #e67e22; /* Orange */
+        --c-3: #f1c40f; /* Yellow */
+        --c-4: #2ecc71; /* Green */
+        --c-5: #3498db; /* Blue */
+    }
+
     body {
-        font-family: sans-serif;
-        max-width: 600px;
-        margin: auto;
+        background-color: var(--bg-color);
+        font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+        height: 100vh;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        color: var(--text-color);
+    }
+
+    /* Layout Container */
+    .app-container {
+        width: 100%;
+        max-width: 500px;
         padding: 20px;
+        box-sizing: border-box;
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+    }
+
+    /* The Flashcard */
+    .card-wrapper {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        perspective: 1000px;
+    }
+
+    .card {
+        background: var(--card-bg);
+        border-radius: 15px;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+        overflow: hidden;
+        min-height: 300px;
+        display: flex;
+        flex-direction: column;
+        cursor: pointer;
+        transition: transform 0.2s;
+        position: relative;
+    }
+
+    .card:active {
+        transform: scale(0.98);
+    }
+
+    /* Colored Header Bar */
+    .card-header {
+        height: 12px;
+        background-color: var(--c-0); /* Default Grey */
+        width: 100%;
+        transition: background-color 0.3s ease;
+    }
+
+    /* Card Content Area */
+    .card-content {
+        flex: 1;
+        padding: 2rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        font-size: 1.5rem;
+        font-weight: 500;
+        line-height: 1.4;
+    }
+    
+    /* Support for images in cards */
+    .card-content img {
+        max-width: 100%;
+        max-height: 200px;
+        border-radius: 8px;
+        margin-top: 10px;
+    }
+
+    .label {
+        position: absolute;
+        top: 25px;
+        left: 20px;
+        font-size: 0.9rem;
+        color: #aaa;
+        font-weight: bold;
+        text-transform: uppercase;
+    }
+
+    /* Rating Buttons Area */
+    .controls {
+        height: 100px; /* Fixed height to prevent jumping */
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-top: 20px;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.2s;
+    }
+
+    .controls.visible {
+        opacity: 1;
+        pointer-events: auto;
+    }
+
+    .rating-btn {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        border: none;
+        margin: 0 8px;
+        color: white;
+        font-weight: bold;
+        font-size: 1.1rem;
+        cursor: pointer;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+        transition: transform 0.1s;
+    }
+
+    .rating-btn:active {
+        transform: translateY(2px);
+    }
+
+    /* Button specific colors */
+    .btn-1 { background-color: var(--c-1); }
+    .btn-2 { background-color: var(--c-2); }
+    .btn-3 { background-color: var(--c-3); }
+    .btn-4 { background-color: var(--c-4); }
+    .btn-5 { background-color: var(--c-5); }
+
+    /* Helper text */
+    .hint-text {
+        color: #7f8c8d;
+        margin-top: 10px;
+        font-size: 0.9rem;
         text-align: center;
     }
-    .card {
-        border: 1px solid #ccc;
-        padding: 2rem;
-        margin: 1rem 0;
-        font-size: 1.4rem;
-        cursor: pointer;
-        user-select: none;
-    }
-    .rating button {
-        padding: 0.6rem 1rem;
-        margin: 0.3rem;
-        font-size: 1rem;
+
+    /* Loading state */
+    #loading {
+        color: white;
+        font-size: 1.2rem;
     }
 </style>
 </head>
-
 <body>
 
-<h1>Flashcards</h1>
+<div class="app-container">
+    
+    <!-- Loading Message -->
+    <div id="loading">Loading cards...</div>
 
-<button onclick="addCard()">Add Card</button>
+    <!-- The Card -->
+    <div id="gameArea" style="display:none;" class="card-wrapper">
+        <div class="card" onclick="flipCard()">
+            <div class="card-header" id="cardHeader"></div>
+            <div class="label" id="cardLabel">Q</div>
+            <div class="card-content" id="cardText">
+                <!-- Text goes here -->
+            </div>
+        </div>
+        
+        <div class="hint-text" id="hintText">Tap card to flip</div>
 
-<div id="cardContainer"></div>
+        <!-- Rating Buttons -->
+        <div class="controls" id="controls">
+            <button class="rating-btn btn-1" onclick="rate(1)">1</button>
+            <button class="rating-btn btn-2" onclick="rate(2)">2</button>
+            <button class="rating-btn btn-3" onclick="rate(3)">3</button>
+            <button class="rating-btn btn-4" onclick="rate(4)">4</button>
+            <button class="rating-btn btn-5" onclick="rate(5)">5</button>
+        </div>
+    </div>
+</div>
 
 <script>
 // -----------------------------
-//    LOCAL STORAGE DATABASE
+//    STATE & DATA
 // -----------------------------
-
-function loadCards() {
-    return JSON.parse(localStorage.getItem("cards") || "[]");
-}
-
-function saveCards(cards) {
-    localStorage.setItem("cards", JSON.stringify(cards));
-}
+let cardsData = []; // Loaded from JSON
+let scores = {};    // Loaded from LocalStorage
+let currentCard = null;
+let isFlipped = false;
 
 // -----------------------------
-//    WEIGHTED ALGORITHM
+//    INIT
 // -----------------------------
-
-const weights = { 1: 25, 2: 16, 3: 9, 4: 2, 5: 1 };
-
-function weightedPick(cards) {
-    let total = cards.reduce((s, c) => s + weights[c.score], 0);
-    let r = Math.random() * total;
-
-    for (let c of cards) {
-        r -= weights[c.score];
-        if (r <= 0) return c;
+window.onload = async () => {
+    // 1. Load scores from memory
+    const savedScores = localStorage.getItem("flashcard_scores");
+    if (savedScores) {
+        scores = JSON.parse(savedScores);
     }
-    return cards[cards.length - 1];
+
+    // 2. Fetch cards from JSON file
+    try {
+        const response = await fetch('cards.json');
+        cardsData = await response.json();
+        
+        document.getElementById('loading').style.display = 'none';
+        document.getElementById('gameArea').style.display = 'flex';
+        
+        pickNextCard();
+    } catch (err) {
+        document.getElementById('loading').innerText = "Error loading cards.json";
+        console.error(err);
+    }
+};
+
+// -----------------------------
+//    ALGORITHM (Weighted)
+// -----------------------------
+// Lower score = Higher probability of appearing
+const weights = { 0: 30, 1: 25, 2: 16, 3: 9, 4: 2, 5: 1 };
+
+function pickNextCard() {
+    if (cardsData.length === 0) return;
+
+    // Calculate total weight based on current scores
+    let totalWeight = 0;
+    const weightedCards = cardsData.map(card => {
+        const score = scores[card.id] || 0; // Default to 0 if no score
+        const weight = weights[score] || 30;
+        totalWeight += weight;
+        return { ...card, weight, currentScore: score };
+    });
+
+    let random = Math.random() * totalWeight;
+    
+    for (let card of weightedCards) {
+        random -= card.weight;
+        if (random <= 0) {
+            currentCard = card;
+            break;
+        }
+    }
+    
+    // Fallback
+    if (!currentCard) currentCard = weightedCards[0];
+
+    // Reset UI for new card
+    isFlipped = false;
+    renderCard();
 }
 
 // -----------------------------
-//    APP LOGIC
+//    UI LOGIC
 // -----------------------------
+function renderCard() {
+    const cardText = document.getElementById('cardText');
+    const cardHeader = document.getElementById('cardHeader');
+    const cardLabel = document.getElementById('cardLabel');
+    const controls = document.getElementById('controls');
+    const hintText = document.getElementById('hintText');
 
-let cards = loadCards();
-let current = cards.length > 0 ? weightedPick(cards) : null;
+    // Content
+    cardText.innerHTML = currentCard.front;
+    cardLabel.innerText = "Q";
+    
+    // Header Color based on previous score
+    // 0=Grey, 1=Purple, 2=Orange, 3=Yellow, 4=Green, 5=Blue
+    const s = currentCard.currentScore;
+    cardHeader.style.backgroundColor = `var(--c-${s})`;
 
-function addCard() {
-    const front = prompt("Front text:");
-    if (!front) return;
+    // Hide controls
+    controls.classList.remove('visible');
+    hintText.style.opacity = 1;
+}
 
-    const back = prompt("Back text:");
-    if (!back) return;
+function flipCard() {
+    if (isFlipped) return; // Prevent flipping back immediately if desired, or toggle
+    
+    isFlipped = true;
+    
+    const cardText = document.getElementById('cardText');
+    const cardLabel = document.getElementById('cardLabel');
+    const controls = document.getElementById('controls');
+    const hintText = document.getElementById('hintText');
 
-    cards.push({ id: Date.now(), front, back, score: 3 });
-    saveCards(cards);
-    current = weightedPick(cards);
-    render();
+    // Show Answer
+    cardText.innerHTML = currentCard.back;
+    cardLabel.innerText = "A";
+
+    // Show Buttons
+    controls.classList.add('visible');
+    hintText.style.opacity = 0;
 }
 
 function rate(score) {
-    current.score = score;
-    saveCards(cards);
-    current = weightedPick(cards);
-    render();
-}
+    // Save score
+    scores[currentCard.id] = score;
+    localStorage.setItem("flashcard_scores", JSON.stringify(scores));
 
-function render() {
-    const container = document.getElementById("cardContainer");
-
-    if (!current) {
-        container.innerHTML = "<p>No cards yet. Add one!</p>";
-        return;
-    }
-
-    container.innerHTML = `
-        <div class="card" onclick="flipCard()">
-            <div id="cardText">${current.front}</div>
-        </div>
-        <div class="rating">
-            <button onclick="rate(1)">1</button>
-            <button onclick="rate(2)">2</button>
-            <button onclick="rate(3)">3</button>
-            <button onclick="rate(4)">4</button>
-            <button onclick="rate(5)">5</button>
-        </div>
-    `;
-}
-
-let flipped = false;
-function flipCard() {
-    flipped = !flipped;
-    document.getElementById("cardText").innerText = 
-        flipped ? current.back : current.front;
+    // Next card
+    pickNextCard();
 }
 
 // -----------------------------
-//    INITIAL RENDER
+//    SERVICE WORKER REG
 // -----------------------------
-
-render();
-
-// -----------------------------
-//    SERVICE WORKER (PWA)
-// -----------------------------
-
 if ("serviceWorker" in navigator) {
     navigator.serviceWorker.register("sw.js");
 }
