@@ -62,7 +62,7 @@
         flex-direction: column;
         cursor: pointer;
         position: relative;
-        max-height: 80vh; /* Prevent it from being too tall */
+        max-height: 80vh; 
     }
 
     .card-header {
@@ -77,7 +77,7 @@
         display: flex;
         flex-direction: column;
         align-items: center;
-        justify-content: flex-start; /* Align to top so board has room */
+        justify-content: flex-start;
         text-align: center;
         overflow-y: auto;
     }
@@ -98,9 +98,10 @@
     /* Chess Board Styling */
     #myBoard {
         width: 100%;
-        max-width: 340px; /* Slightly larger */
+        max-width: 340px; 
         margin: 10px auto;
-        pointer-events: none; /* Prevent dragging */
+        /* Note: We allow touch actions so you can scroll past the board on mobile if needed */
+        touch-action: pan-y; 
     }
 
     /* Controls at bottom */
@@ -131,6 +132,7 @@
         font-size: 1rem;
         cursor: pointer;
         box-shadow: 0 3px 5px rgba(0,0,0,0.2);
+        transition: transform 0.1s;
     }
     
     .rating-btn:active { transform: scale(0.95); }
@@ -166,6 +168,8 @@
         cursor: pointer;
         z-index: 10;
     }
+    
+    .flip-btn:hover { background-color: #f0f0f0; }
 </style>
 </head>
 <body>
@@ -231,18 +235,18 @@ window.onload = async () => {
         const response = await fetch('cards.json');
         cardsData = await response.json();
         
-        // --- CRITICAL FIX: pieceTheme points to web images ---
+        // --- FIXED: Use online images from unpkg ---
         board = Chessboard('myBoard', {
             position: 'start',
             showNotation: true,
             draggable: false,
-            pieceTheme: 'https://chessboardjs.com/img/chesspieces/wikipedia/{piece}.png'
+            pieceTheme: 'https://unpkg.com/@chrisoakman/chessboardjs@1.0.0/dist/img/chesspieces/wikipedia/{piece}.png'
         });
 
         document.getElementById('loading').style.display = 'none';
         document.getElementById('gameArea').style.display = 'flex';
         
-        // --- CRITICAL FIX: Resize board after making it visible ---
+        // Resize board after it becomes visible to prevent zero-width issues
         setTimeout(() => { board.resize(); }, 100);
 
         pickNextCard();
@@ -378,3 +382,5 @@ if ("serviceWorker" in navigator) {
 
 </body>
 </html>
+
+
