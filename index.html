@@ -100,7 +100,6 @@
         width: 100%;
         max-width: 340px; 
         margin: 10px auto;
-        /* Note: We allow touch actions so you can scroll past the board on mobile if needed */
         touch-action: pan-y; 
     }
 
@@ -213,6 +212,28 @@
 
 <script>
 // -----------------------------
+//    ASSETS (Wikimedia SVGs)
+// -----------------------------
+function getPieceImg(piece) {
+    // Map standard ChessboardJS piece codes (wP, bK, etc) to Wikimedia Commons URLs
+    const map = {
+        'wP': 'https://upload.wikimedia.org/wikipedia/commons/1/10/Chess_plt45.svg',
+        'wN': 'https://upload.wikimedia.org/wikipedia/commons/7/70/Chess_nlt45.svg',
+        'wB': 'https://upload.wikimedia.org/wikipedia/commons/b/b1/Chess_blt45.svg',
+        'wR': 'https://upload.wikimedia.org/wikipedia/commons/7/72/Chess_rlt45.svg',
+        'wQ': 'https://upload.wikimedia.org/wikipedia/commons/1/15/Chess_qlt45.svg',
+        'wK': 'https://upload.wikimedia.org/wikipedia/commons/4/42/Chess_klt45.svg',
+        'bP': 'https://upload.wikimedia.org/wikipedia/commons/c/c7/Chess_pdt45.svg',
+        'bN': 'https://upload.wikimedia.org/wikipedia/commons/e/ef/Chess_ndt45.svg',
+        'bB': 'https://upload.wikimedia.org/wikipedia/commons/9/98/Chess_bdt45.svg',
+        'bR': 'https://upload.wikimedia.org/wikipedia/commons/f/ff/Chess_rdt45.svg',
+        'bQ': 'https://upload.wikimedia.org/wikipedia/commons/4/47/Chess_qdt45.svg',
+        'bK': 'https://upload.wikimedia.org/wikipedia/commons/f/f0/Chess_kdt45.svg'
+    };
+    return map[piece] || '';
+}
+
+// -----------------------------
 //    STATE
 // -----------------------------
 let cardsData = [];
@@ -235,22 +256,19 @@ window.onload = async () => {
         const response = await fetch('cards.json');
         cardsData = await response.json();
         
-        // --- FIXED: Use online images from unpkg ---
+        // --- FIXED: Use custom function for images ---
         board = Chessboard('myBoard', {
             position: 'start',
             showNotation: true,
             draggable: false,
-            pieceTheme: 'https://unpkg.com/@chrisoakman/chessboardjs@1.0.0/dist/img/chesspieces/wikipedia/{piece}.png'
+            pieceTheme: getPieceImg // Calls our function above
         });
 
         document.getElementById('loading').style.display = 'none';
         document.getElementById('gameArea').style.display = 'flex';
         
-        // Resize board after it becomes visible to prevent zero-width issues
         setTimeout(() => { board.resize(); }, 100);
-
         pickNextCard();
-        
         window.addEventListener('resize', () => { board.resize(); });
 
     } catch (err) {
