@@ -35,6 +35,16 @@
         overflow: hidden; 
     }
 
+    /* --- CHESSBOARD.JS THEME OVERRIDE (Chess.com Green) --- */
+    .white-1e1d7 {
+        background-color: #eeeed2;
+        color: #769656;
+    }
+    .black-3c85d {
+        background-color: #769656;
+        color: #eeeed2;
+    }
+
     .app-container {
         width: 100%;
         max-width: 450px; 
@@ -43,8 +53,44 @@
         display: flex;
         flex-direction: column;
         height: 100%;
+        position: relative;
     }
 
+    /* --- TOP BAR --- */
+    .top-bar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        width: 100%;
+        margin-bottom: 10px;
+        z-index: 20;
+    }
+
+    .top-title {
+        color: #ecf0f1;
+        font-weight: bold;
+        font-size: 1.1rem;
+    }
+
+    .icon-btn {
+        background: none;
+        border: none;
+        color: #ecf0f1;
+        font-size: 1.5rem;
+        cursor: pointer;
+        padding: 5px;
+    }
+
+    /* --- VIEWS --- */
+    .view-section {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        position: relative;
+        width: 100%;
+    }
+
+    /* --- FLASHCARD VIEW --- */
     .card-wrapper {
         flex: 1;
         display: flex;
@@ -65,11 +111,7 @@
         max-height: 80vh; 
     }
 
-    .card-header {
-        height: 10px;
-        background-color: var(--c-0);
-        width: 100%;
-    }
+    .card-header { height: 10px; background-color: var(--c-0); width: 100%; transition: background-color 0.3s; }
 
     .card-content {
         flex: 1;
@@ -82,28 +124,12 @@
         overflow-y: auto;
     }
 
-    .q-text {
-        font-size: 1.5rem;
-        font-weight: 600;
-        margin: 0.5rem 0;
-        color: #2c3e50;
-    }
+    .q-text { font-size: 1.5rem; font-weight: 600; margin: 0.5rem 0; color: #2c3e50; }
+    .a-text { font-size: 1.1rem; color: #7f8c8d; min-height: 1.5rem; }
 
-    .a-text {
-        font-size: 1.1rem;
-        color: #7f8c8d;
-        min-height: 1.5rem;
-    }
+    #myBoard { width: 100%; max-width: 340px; margin: 10px auto; touch-action: pan-y; }
 
-    /* Chess Board Styling */
-    #myBoard {
-        width: 100%;
-        max-width: 340px; 
-        margin: 10px auto;
-        touch-action: pan-y; 
-    }
-
-    /* Controls at bottom */
+    /* Controls */
     .controls {
         height: 80px;
         display: flex;
@@ -114,26 +140,13 @@
         pointer-events: none;
         transition: opacity 0.2s;
     }
-
-    .controls.visible {
-        opacity: 1;
-        pointer-events: auto;
-    }
+    .controls.visible { opacity: 1; pointer-events: auto; }
 
     .rating-btn {
-        width: 45px;
-        height: 45px;
-        border-radius: 50%;
-        border: none;
-        margin: 0 6px;
-        color: white;
-        font-weight: bold;
-        font-size: 1rem;
-        cursor: pointer;
-        box-shadow: 0 3px 5px rgba(0,0,0,0.2);
-        transition: transform 0.1s;
+        width: 45px; height: 45px; border-radius: 50%; border: none; margin: 0 6px;
+        color: white; font-weight: bold; font-size: 1rem; cursor: pointer;
+        box-shadow: 0 3px 5px rgba(0,0,0,0.2); transition: transform 0.1s;
     }
-    
     .rating-btn:active { transform: scale(0.95); }
     .btn-1 { background-color: var(--c-1); }
     .btn-2 { background-color: var(--c-2); }
@@ -142,55 +155,121 @@
     .btn-5 { background-color: var(--c-5); }
 
     .deck-badge {
-        position: absolute;
-        top: 20px;
-        right: 20px;
-        background: #ecf0f1;
-        padding: 4px 8px;
-        border-radius: 4px;
-        font-size: 0.7rem;
-        color: #7f8c8d;
-        text-transform: uppercase;
-        font-weight: bold;
+        position: absolute; top: 20px; right: 20px;
+        background: #ecf0f1; padding: 4px 8px; border-radius: 4px;
+        font-size: 0.7rem; color: #7f8c8d; text-transform: uppercase; font-weight: bold;
     }
 
     .flip-btn {
-        position: absolute;
-        top: 20px;
-        left: 20px;
-        background: none;
-        border: 1px solid #ccc;
-        padding: 4px 8px;
-        border-radius: 4px;
-        font-size: 0.7rem;
-        color: #7f8c8d;
-        cursor: pointer;
-        z-index: 10;
+        position: absolute; top: 20px; left: 20px;
+        background: none; border: 1px solid #ccc; padding: 4px 8px; border-radius: 4px;
+        font-size: 0.7rem; color: #7f8c8d; cursor: pointer; z-index: 10;
     }
-    
     .flip-btn:hover { background-color: #f0f0f0; }
+
+    /* --- STATS VIEW --- */
+    #statsView {
+        display: none; /* Hidden by default */
+        background: var(--bg-color);
+        align-items: center;
+        justify-content: flex-start;
+        flex-direction: column;
+        color: white;
+        padding-top: 20px;
+    }
+
+    .chart-container {
+        position: relative;
+        width: 260px;
+        height: 260px;
+        border-radius: 50%;
+        background: conic-gradient(var(--c-0) 0% 100%); 
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        margin-bottom: 30px;
+        flex-shrink: 0;
+    }
+
+    .chart-inner {
+        width: 200px;
+        height: 200px;
+        background-color: var(--bg-color);
+        border-radius: 50%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+    }
+
+    .mastery-percent { font-size: 3rem; font-weight: bold; line-height: 1; }
+    .mastery-label { font-size: 0.9rem; text-transform: uppercase; letter-spacing: 2px; color: #bdc3c7; margin-top: 5px; }
+
+    /* Filter & Reset Controls */
+    .settings-group {
+        width: 100%;
+        padding: 0 30px;
+        margin-bottom: 20px;
+    }
+
+    .settings-label {
+        font-size: 0.9rem;
+        color: #bdc3c7;
+        margin-bottom: 5px;
+        display: block;
+    }
+
+    .styled-select {
+        width: 100%;
+        padding: 12px;
+        background: rgba(0,0,0,0.2);
+        border: 1px solid rgba(255,255,255,0.1);
+        color: white;
+        border-radius: 8px;
+        font-size: 1rem;
+        appearance: none; /* Remove default arrow */
+    }
+
+    .btn-reset {
+        margin-top: 20px;
+        background: rgba(231, 76, 60, 0.2);
+        color: #e74c3c;
+        border: 1px solid #e74c3c;
+        padding: 10px 20px;
+        border-radius: 8px;
+        cursor: pointer;
+        font-weight: bold;
+        transition: background 0.2s;
+    }
+    .btn-reset:active { background: rgba(231, 76, 60, 0.4); }
+
 </style>
 </head>
 <body>
 
 <div class="app-container">
-    <div id="loading" style="color:white; text-align:center; margin-top:50px;">Loading Chess Engine...</div>
+    
+    <!-- Top Bar -->
+    <div class="top-bar">
+        <div class="top-title">Chess Openings</div>
+        <button class="icon-btn" onclick="toggleStats()">📊</button>
+    </div>
 
-    <div id="gameArea" style="display:none;" class="card-wrapper">
+    <!-- FLASHCARD VIEW -->
+    <div id="gameArea" class="view-section" style="display:none;">
         <div class="card" onclick="revealAnswer()">
             <div class="card-header" id="cardHeader"></div>
             
-            <button class="flip-btn" onclick="toggleOrientation(event)">FLIP BOARD</button>
+            <button class="flip-btn" onclick="flipBoardManually(event)">FLIP BOARD</button>
             <div class="deck-badge" id="deckBadge">OPENING</div>
             
             <div class="card-content">
-                <!-- Text Area Top -->
                 <div id="textContainer">
                     <div id="mainText" class="q-text">Loading...</div>
                     <div id="subText" class="a-text"></div>
                 </div>
-
-                <!-- Board Area -->
                 <div id="myBoard"></div>
             </div>
         </div>
@@ -203,6 +282,31 @@
             <button class="rating-btn btn-5" onclick="rate(5)">5</button>
         </div>
     </div>
+
+    <!-- STATS VIEW -->
+    <div id="statsView" class="view-section">
+        <div class="chart-container" id="masteryChart">
+            <div class="chart-inner">
+                <div class="mastery-percent" id="masteryPercent">0%</div>
+                <div class="mastery-label">Mastery</div>
+            </div>
+        </div>
+
+        <div class="settings-group">
+            <label class="settings-label">STUDY FILTER</label>
+            <select id="tagFilter" class="styled-select" onchange="changeFilter()">
+                <option value="all">All Cards</option>
+                <!-- Options populated dynamically -->
+            </select>
+        </div>
+
+        <div class="settings-group" style="text-align: center;">
+            <div id="totalCardsNum" style="color: #bdc3c7; margin-bottom:10px;"></div>
+            <button class="btn-reset" onclick="resetProgress()">RESET ALL PROGRESS</button>
+        </div>
+    </div>
+
+    <div id="loading" style="color:white; text-align:center; margin-top:50px;">Loading...</div>
 </div>
 
 <!-- Scripts -->
@@ -212,10 +316,9 @@
 
 <script>
 // -----------------------------
-//    ASSETS (Wikimedia SVGs)
+//    ASSETS 
 // -----------------------------
 function getPieceImg(piece) {
-    // Map standard ChessboardJS piece codes (wP, bK, etc) to Wikimedia Commons URLs
     const map = {
         'wP': 'https://upload.wikimedia.org/wikipedia/commons/4/45/Chess_plt45.svg',
         'wN': 'https://upload.wikimedia.org/wikipedia/commons/7/70/Chess_nlt45.svg',
@@ -243,25 +346,33 @@ let isAnswerRevealed = false;
 let board = null;
 let game = new Chess();
 let moveInterval = null;
-let userOrientation = 'white';
+let currentFilter = 'all';
 
 // -----------------------------
 //    INIT
 // -----------------------------
 window.onload = async () => {
+    // 1. Load Scores
     const savedScores = localStorage.getItem("flashcard_scores");
     if (savedScores) scores = JSON.parse(savedScores);
+
+    // 2. Load Filter preference
+    const savedFilter = localStorage.getItem("flashcard_filter");
+    if (savedFilter) currentFilter = savedFilter;
 
     try {
         const response = await fetch('cards.json');
         cardsData = await response.json();
         
-        // --- FIXED: Use custom function for images ---
+        // Populate Filter Dropdown
+        populateFilterDropdown();
+
+        // Init Board
         board = Chessboard('myBoard', {
             position: 'start',
             showNotation: true,
             draggable: false,
-            pieceTheme: getPieceImg // Calls our function above
+            pieceTheme: getPieceImg 
         });
 
         document.getElementById('loading').style.display = 'none';
@@ -272,10 +383,45 @@ window.onload = async () => {
         window.addEventListener('resize', () => { board.resize(); });
 
     } catch (err) {
-        document.getElementById('loading').innerText = "Error loading data. Ensure cards.json exists.";
+        document.getElementById('loading').innerText = "Error loading data.";
         console.error(err);
     }
 };
+
+// -----------------------------
+//    FILTER & DATA LOGIC
+// -----------------------------
+function populateFilterDropdown() {
+    const tags = new Set();
+    cardsData.forEach(c => {
+        if (c.tag) tags.add(c.tag);
+    });
+    
+    const select = document.getElementById('tagFilter');
+    tags.forEach(tag => {
+        const opt = document.createElement('option');
+        opt.value = tag;
+        opt.innerText = tag.toUpperCase();
+        select.appendChild(opt);
+    });
+
+    // Set value
+    select.value = currentFilter;
+}
+
+function changeFilter() {
+    currentFilter = document.getElementById('tagFilter').value;
+    localStorage.setItem("flashcard_filter", currentFilter);
+    calculateStats(); // Update stats immediately to reflect filter? Or keep stats global?
+    // Let's update stats to reflect the filter!
+}
+
+function resetProgress() {
+    if(confirm("Are you sure you want to reset all progress? This cannot be undone.")) {
+        localStorage.removeItem("flashcard_scores");
+        location.reload();
+    }
+}
 
 // -----------------------------
 //    ALGORITHM
@@ -285,8 +431,22 @@ const weights = { 0: 30, 1: 25, 2: 16, 3: 9, 4: 2, 5: 1 };
 function pickNextCard() {
     if (cardsData.length === 0) return;
 
+    // Filter deck first
+    let activeDeck = cardsData;
+    if (currentFilter !== 'all') {
+        activeDeck = cardsData.filter(c => c.tag === currentFilter);
+    }
+    
+    // Safety check if filter is empty
+    if (activeDeck.length === 0) {
+        alert("No cards found for this filter!");
+        currentFilter = 'all';
+        document.getElementById('tagFilter').value = 'all';
+        activeDeck = cardsData;
+    }
+
     let totalWeight = 0;
-    const weightedCards = cardsData.map(c => {
+    const weightedCards = activeDeck.map(c => {
         const s = scores[c.id] || 0; 
         const w = weights[s] || 30;
         totalWeight += w;
@@ -303,29 +463,27 @@ function pickNextCard() {
             break;
         }
     }
-
     renderCardFront();
 }
 
 // -----------------------------
 //    RENDER LOGIC
 // -----------------------------
-
 function renderCardFront() {
     isAnswerRevealed = false;
-    
     document.getElementById('controls').classList.remove('visible');
     document.getElementById('cardHeader').style.backgroundColor = `var(--c-${currentCard.currentScore})`;
     document.getElementById('deckBadge').innerText = currentCard.tag || "CHESS";
 
-    // Text Setup
     document.getElementById('mainText').innerText = "Guess the Opening";
     document.getElementById('mainText').style.fontSize = "1.5rem";
     document.getElementById('mainText').style.color = "#7f8c8d";
     document.getElementById('subText').innerText = "(Watch the board)";
     
-    // Board Setup
-    board.orientation(userOrientation);
+    // Set Orientation from Card Data
+    const orientation = currentCard.orientation || 'white';
+    board.orientation(orientation);
+    
     playOpening(currentCard.pgn);
 }
 
@@ -333,16 +491,80 @@ function revealAnswer() {
     if (isAnswerRevealed) return;
     isAnswerRevealed = true;
 
-    // Show Name
     document.getElementById('mainText').innerText = currentCard.front; 
     document.getElementById('mainText').style.fontSize = "2rem";
     document.getElementById('mainText').style.color = "#2c3e50";
-    
-    // Show PGN
     document.getElementById('subText').innerText = currentCard.back; 
-
-    // Show Buttons
     document.getElementById('controls').classList.add('visible');
+}
+
+// -----------------------------
+//    STATS LOGIC
+// -----------------------------
+function toggleStats() {
+    const gameDiv = document.getElementById('gameArea');
+    const statsDiv = document.getElementById('statsView');
+    
+    if (statsDiv.style.display === 'flex') {
+        // Close Stats: Return to game and pick a new card (in case filter changed)
+        statsDiv.style.display = 'none';
+        gameDiv.style.display = 'flex';
+        pickNextCard(); 
+        setTimeout(() => { board.resize(); }, 50);
+    } else {
+        // Open Stats
+        gameDiv.style.display = 'none';
+        statsDiv.style.display = 'flex';
+        calculateStats();
+    }
+}
+
+function calculateStats() {
+    // Calculate stats ONLY for the currently selected filter
+    let activeDeck = cardsData;
+    if (currentFilter !== 'all') {
+        activeDeck = cardsData.filter(c => c.tag === currentFilter);
+    }
+
+    const totalCards = activeDeck.length;
+    if (totalCards === 0) return;
+
+    const counts = { 0:0, 1:0, 2:0, 3:0, 4:0, 5:0 };
+    let totalScoreSum = 0;
+
+    activeDeck.forEach(c => {
+        const s = scores[c.id] || 0;
+        counts[s]++;
+        totalScoreSum += s; 
+    });
+
+    const maxPossible = totalCards * 5;
+    const percent = Math.round((totalScoreSum / maxPossible) * 100) || 0;
+
+    document.getElementById('masteryPercent').innerText = percent + "%";
+    document.getElementById('totalCardsNum').innerText = totalCards + " Cards (Filtered)";
+
+    let currentDeg = 0;
+    let gradientParts = [];
+    const order = [1, 2, 3, 4, 5, 0];
+    
+    order.forEach(scoreKey => {
+        const count = counts[scoreKey];
+        if (count > 0) {
+            const share = count / totalCards;
+            const degSpan = share * 360;
+            const endDeg = currentDeg + degSpan;
+            gradientParts.push(`var(--c-${scoreKey}) ${currentDeg}deg ${endDeg}deg`);
+            currentDeg = endDeg;
+        }
+    });
+
+    // Handle empty state
+    if (gradientParts.length === 0) {
+        document.getElementById('masteryChart').style.background = 'var(--c-0)';
+    } else {
+        document.getElementById('masteryChart').style.background = `conic-gradient(${gradientParts.join(', ')})`;
+    }
 }
 
 // -----------------------------
@@ -350,16 +572,12 @@ function revealAnswer() {
 // -----------------------------
 function playOpening(pgn) {
     if (moveInterval) clearInterval(moveInterval);
-    
     game.reset();
     board.position('start');
-
-    const loadSuccess = game.load_pgn(pgn);
-    if(!loadSuccess) return;
+    if(!game.load_pgn(pgn)) return;
     
     const moves = game.history(); 
     game.reset(); 
-    
     let moveIndex = 0;
     
     setTimeout(() => {
@@ -367,24 +585,21 @@ function playOpening(pgn) {
             if (moveIndex >= moves.length) {
                 clearInterval(moveInterval);
                 setTimeout(() => {
-                    // Replay if same card
                     if (currentCard.pgn === pgn && !isAnswerRevealed) playOpening(pgn); 
                 }, 2000);
                 return;
             }
-
             game.move(moves[moveIndex]);
             board.position(game.fen());
             moveIndex++;
-            
         }, 800); 
     }, 500);
 }
 
-function toggleOrientation(e) {
-    e.stopPropagation(); // Stop card flip
-    userOrientation = userOrientation === 'white' ? 'black' : 'white';
-    board.orientation(userOrientation);
+function flipBoardManually(e) {
+    e.stopPropagation(); 
+    const currentOr = board.orientation();
+    board.orientation(currentOr === 'white' ? 'black' : 'white');
 }
 
 function rate(score) {
@@ -400,4 +615,3 @@ if ("serviceWorker" in navigator) {
 
 </body>
 </html>
-
