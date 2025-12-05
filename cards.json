@@ -1,114 +1,31 @@
 [
-  {
-    "id": 101,
-    "front": "Sicilian Defense",
-    "back": "1. e4 c5",
-    "pgn": "1. e4 c5",
-    "tag": "e4"
-  },
-  {
-    "id": 102,
-    "front": "French Defense",
-    "back": "1. e4 e6",
-    "pgn": "1. e4 e6",
-    "tag": "e4"
-  },
-  {
-    "id": 103,
-    "front": "Caro-Kann Defense",
-    "back": "1. e4 c6",
-    "pgn": "1. e4 c6",
-    "tag": "e4"
-  },
-  {
-    "id": 104,
-    "front": "Ruy Lopez",
-    "back": "1. e4 e5 2. Nf3 Nc6 3. Bb5",
-    "pgn": "1. e4 e5 2. Nf3 Nc6 3. Bb5",
-    "tag": "e4"
-  },
-  {
-    "id": 105,
-    "front": "Italian Game",
-    "back": "1. e4 e5 2. Nf3 Nc6 3. Bc4",
-    "pgn": "1. e4 e5 2. Nf3 Nc6 3. Bc4",
-    "tag": "e4"
-  },
-  {
-    "id": 106,
-    "front": "Scandinavian Defense",
-    "back": "1. e4 d5",
-    "pgn": "1. e4 d5",
-    "tag": "e4"
-  },
-  {
-    "id": 107,
-    "front": "Alekhine's Defense",
-    "back": "1. e4 Nf6",
-    "pgn": "1. e4 Nf6",
-    "tag": "e4"
-  },
-  {
-    "id": 108,
-    "front": "Pirc Defense",
-    "back": "1. e4 d6 2. d4 Nf6 3. Nc3 g6",
-    "pgn": "1. e4 d6 2. d4 Nf6 3. Nc3 g6",
-    "tag": "e4"
-  },
-  {
-    "id": 201,
-    "front": "Queen's Gambit",
-    "back": "1. d4 d5 2. c4",
-    "pgn": "1. d4 d5 2. c4",
-    "tag": "d4"
-  },
-  {
-    "id": 202,
-    "front": "London System",
-    "back": "1. d4 d5 2. Bf4",
-    "pgn": "1. d4 d5 2. Bf4",
-    "tag": "d4"
-  },
-  {
-    "id": 203,
-    "front": "King's Indian Defense",
-    "back": "1. d4 Nf6 2. c4 g6",
-    "pgn": "1. d4 Nf6 2. c4 g6",
-    "tag": "d4"
-  },
-  {
-    "id": 204,
-    "front": "Nimzo-Indian Defense",
-    "back": "1. d4 Nf6 2. c4 e6 3. Nc3 Bb4",
-    "pgn": "1. d4 Nf6 2. c4 e6 3. Nc3 Bb4",
-    "tag": "d4"
-  },
-  {
-    "id": 205,
-    "front": "Dutch Defense",
-    "back": "1. d4 f5",
-    "pgn": "1. d4 f5",
-    "tag": "d4"
-  },
-  {
-    "id": 206,
-    "front": "Slav Defense",
-    "back": "1. d4 d5 2. c4 c6",
-    "pgn": "1. d4 d5 2. c4 c6",
-    "tag": "d4"
-  },
-  {
-    "id": 301,
-    "front": "English Opening",
-    "back": "1. c4",
-    "pgn": "1. c4",
-    "tag": "flank"
-  },
-  {
-    "id": 302,
-    "front": "Réti Opening",
-    "back": "1. Nf3 d5 2. c4",
-    "pgn": "1. Nf3 d5 2. c4",
-    "tag": "flank"
-  }
+  { "id": 101, "front": "Sicilian Defense", "back": "1. e4 c5", "pgn": "1. e4 c5", "tag": "e4", "orientation": "white" },
+  { "id": 1010, "front": "Sicilian Defense", "back": "1. e4 c5", "pgn": "1. e4 c5", "tag": "e4", "orientation": "black" },
+  
+  { "id": 102, "front": "French Defense", "back": "1. e4 e6", "pgn": "1. e4 e6", "tag": "e4", "orientation": "white" },
+  { "id": 1020, "front": "French Defense", "back": "1. e4 e6", "pgn": "1. e4 e6", "tag": "e4", "orientation": "black" },
+  
+  { "id": 103, "front": "Caro-Kann Defense", "back": "1. e4 c6", "pgn": "1. e4 c6", "tag": "e4", "orientation": "white" },
+  { "id": 1030, "front": "Caro-Kann Defense", "back": "1. e4 c6", "pgn": "1. e4 c6", "tag": "e4", "orientation": "black" },
+
+  { "id": 104, "front": "Ruy Lopez", "back": "1. e4 e5 2. Nf3 Nc6 3. Bb5", "pgn": "1. e4 e5 2. Nf3 Nc6 3. Bb5", "tag": "e4", "orientation": "white" },
+  { "id": 1040, "front": "Ruy Lopez", "back": "1. e4 e5 2. Nf3 Nc6 3. Bb5", "pgn": "1. e4 e5 2. Nf3 Nc6 3. Bb5", "tag": "e4", "orientation": "black" },
+
+  { "id": 105, "front": "Italian Game", "back": "1. e4 e5 2. Nf3 Nc6 3. Bc4", "pgn": "1. e4 e5 2. Nf3 Nc6 3. Bc4", "tag": "e4", "orientation": "white" },
+  { "id": 1050, "front": "Italian Game", "back": "1. e4 e5 2. Nf3 Nc6 3. Bc4", "pgn": "1. e4 e5 2. Nf3 Nc6 3. Bc4", "tag": "e4", "orientation": "black" },
+
+  { "id": 106, "front": "Scandinavian Defense", "back": "1. e4 d5", "pgn": "1. e4 d5", "tag": "e4", "orientation": "white" },
+  { "id": 1060, "front": "Scandinavian Defense", "back": "1. e4 d5", "pgn": "1. e4 d5", "tag": "e4", "orientation": "black" },
+
+  { "id": 201, "front": "Queen's Gambit", "back": "1. d4 d5 2. c4", "pgn": "1. d4 d5 2. c4", "tag": "d4", "orientation": "white" },
+  { "id": 2010, "front": "Queen's Gambit", "back": "1. d4 d5 2. c4", "pgn": "1. d4 d5 2. c4", "tag": "d4", "orientation": "black" },
+
+  { "id": 202, "front": "London System", "back": "1. d4 d5 2. Bf4", "pgn": "1. d4 d5 2. Bf4", "tag": "d4", "orientation": "white" },
+  { "id": 2020, "front": "London System", "back": "1. d4 d5 2. Bf4", "pgn": "1. d4 d5 2. Bf4", "tag": "d4", "orientation": "black" },
+
+  { "id": 203, "front": "King's Indian Defense", "back": "1. d4 Nf6 2. c4 g6", "pgn": "1. d4 Nf6 2. c4 g6", "tag": "d4", "orientation": "white" },
+  { "id": 2030, "front": "King's Indian Defense", "back": "1. d4 Nf6 2. c4 g6", "pgn": "1. d4 Nf6 2. c4 g6", "tag": "d4", "orientation": "black" },
+
+  { "id": 301, "front": "English Opening", "back": "1. c4", "pgn": "1. c4", "tag": "flank", "orientation": "white" },
+  { "id": 3010, "front": "English Opening", "back": "1. c4", "pgn": "1. c4", "tag": "flank", "orientation": "black" }
 ]
